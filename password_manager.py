@@ -15,7 +15,10 @@ def get_passwords(website=None):
     f.close()
     if website == None:
         return passwords
-    return passwords[website]
+    try:
+        return passwords[website]
+    except:
+        return None
 
 def save_password(website, password):
     f = open("passwords.json")
@@ -34,7 +37,7 @@ def determine_strength(password):
         return "Weak"
     elif len(password) <= 3:
         return "Weak"
-    
+
     f.close()
 
     num_count = 0
@@ -54,11 +57,18 @@ def determine_strength(password):
     if num_count > 3 and len(password) >= 8:
         return "Strong"
     
+    if len(password) > 13 and not password.isnumeric():
+        return "Strong"
+    elif len(password) > 20:
+        return "Strong"
+
     return "Weak"
+    
+
 
 while True:
     action = input("What do you want to do? G to get a password, C to create a password, S to save a password, D to determine strength of password or Q to quit. ")
-    if action == "G":
+    if action.upper() == "G":
         website = input("\nEnter website (optional): ")
         if website == "":
             passwords = get_passwords()
@@ -66,25 +76,31 @@ while True:
             for website in passwords:
                 print(f"Website: {website}\nPassword: {passwords[website]}\n")
         else:
-            passwords = get_passwords(website)
-            print(f"\nWebsite: {website}\nPassword: {passwords}")
-    elif action == "C":
+            password = get_passwords(website)
+            if password == None:
+                print("\nInvalid Website!")
+            else:
+                print(f"\nWebsite: {website}\nPassword: {password}")
+    elif action.upper() == "C":
         length = input("\nEnter length (optional): ")
         if length == "":
             print(create_password())
         else:
-            print(create_password(int(length)))
-    elif action == "S":
+            try:
+                print(create_password(int(length)))
+            except:
+                print("Invalid input!")
+    elif action.upper() == "S":
         website = input("\nEnter website: ")
         password = input("\nEnter password (optional): ")
         if password == "":
             save_password(website, create_password())
         else:
             save_password(website, password)
-    elif action == "D":
+    elif action.upper() == "D":
         password = input("\nEnter password: ")
         print(determine_strength(password))
-    elif action == "Q":
+    elif action.upper() == "Q":
         break
     else:
         print("Invalid Action!")
